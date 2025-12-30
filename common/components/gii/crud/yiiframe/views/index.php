@@ -110,7 +110,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
             echo "            [
                 'attribute' => 'member_id',
                 'value' => function (\$model) {
-                    return \yii\helpers\ArrayHelper::getValue(Yii::\$app->services->devPattern->member()::dropDown(),\$model->member_id,'未知');
+                    return \yii\helpers\ArrayHelper::getValue(Yii::\$app->services->devPattern->member()::dropDown(),\$model->member_id,Yii::t('addon','未知'));
                 },
                 'filter' => Html::activeDropDownList(\$searchModel, 'member_id', Yii::\$app->services->devPattern->member()::dropDown('id','title'),['prompt' => Yii::t('addon','全部'), 'class' => 'form-control']
                 ),
@@ -148,28 +148,29 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                     $itemsCode = "['1' => '选项1', '2' => '选项2']";
                 }
             }
+            echo "            [
+                'attribute' => '".$column->name."',
+                'value' => function (\$model) {
+                    \$ids = is_array(\$model->$column->name) 
+                    ? \$model->$column->name 
+                    : json_decode(\$model->$column->name, true);
+                    
+                    if (!is_array(\$ids) || !\$ids) return Yii::t('addon','未知');
 
-            // 2. 输出 GridView 列
-            echo "            [\n";
-            echo "                'attribute' => '{$column->name}',\n";
-            echo "                'value' => function (\$model) {\n";
-            echo "                    \$ids = is_array(\$model->{$column->name})\n";
-            echo "                           ? \$model->{$column->name}\n";
-            echo "                           : json_decode(\$model->{$column->name}, true);\n";
-            echo "                    if (!is_array(\$ids) || !\$ids) return Yii::t('app','未知');\n";
-            echo "                    \$map   = {$itemsCode};\n";
-            echo "                    \$names = array_filter(array_map(function (\$id) use (\$map) {\n";
-            echo "                        return \$map[\$id] ?? '';\n";
-            echo "                    }, \$ids));\n";
-            echo "                    return \$names ? implode(', ', \$names) : Yii::t('app','未知');\n";
-            echo "                },\n";
-            echo "                'filter' => Html::dropDownList(\n";
-            echo "                    '{$column->name}',\n";
-            echo "                    Yii::\$app->request->get('{$column->name}'),\n";
-            echo "                    {$itemsCode},\n";
-            echo "                    ['prompt' => Yii::t('addon','全部'), 'class' => 'form-control', 'onchange' => 'this.form.submit()']\n";
-            echo "                ),\n";
-            echo "            ],\n";
+                    \$map   = Yii::\$app->services->devPattern->member()::dropDown();
+                    \$names = array_filter(array_map(function (\$id) use (\$map) {
+                        return \$map[\$id] ?? '';
+                    }, \$ids));
+                    
+                    return \$names ? implode(', ', \$names) : Yii::t('addon','未知');
+                },
+                'filter' => Html::dropDownList(
+                    '".$column->name."',
+                    Yii::\$app->request->get('".$column->name."'), 
+                    Yii::\$app->services->devPattern->member()::dropDown(), 
+                    ['prompt' => Yii::t('addon','全部'), 'class' => 'form-control', 'onchange' => 'this.form.submit()']
+                ),
+            ],\n";
             continue;   // 已经处理完，直接下一轮
         }
         if (in_array($type, $mapable)) {
@@ -192,24 +193,23 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                     $itemsCode = "['1' => '选项1', '2' => '选项2']";
                 }
             }
-
-            // 输出下拉列
-            echo "            [\n";
-            echo "                'attribute' => '{$column->name}',\n";
-            echo "                'filter' => \\yii\\helpers\\Html::activeDropDownList(
-                                \$searchModel,
-                                '{$column->name}',
-                                {$itemsCode},
-                                ['prompt' => Yii::t('addon','全部'), 'class' => 'form-control']
-                            ),\n";
-            echo "                'value' => function(\$model) {
-                                return \\yii\\helpers\\ArrayHelper::getValue(
-                                    {$itemsCode},
-                                    \$model->{$column->name},
-                                    '未知'
-                                );
-                            },\n";
-            echo "            ],\n";
+            echo "            [
+                'attribute' => '".$column->name."',
+                'value' => function(\$model) {
+                    return \yii\helpers\ArrayHelper::getValue(
+                        $itemsCode,
+                        \$model->$column->name,
+                        Yii::t('addon','未知')
+                    );
+                },
+                'filter' => \yii\helpers\Html::activeDropDownList(
+                    \$searchModel,
+                    '".$column->name."',
+                    $itemsCode,
+                   ['prompt' => Yii::t('addon','全部'), 'class' => 'form-control']
+                ),
+            ],\n";
+            
             continue;
         }
 
