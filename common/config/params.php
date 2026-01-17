@@ -22,7 +22,7 @@ return [
     // 开发模式
     'devPattern' => 'saas',//saas,b2c,b2b2c
     //应用分组
-    'group' => '0',//0平铺，1分组
+    'group' => '1',//0平铺，1分组
     // 请求全局唯一ID
     'uuid' => '',
     // 真实 app id
