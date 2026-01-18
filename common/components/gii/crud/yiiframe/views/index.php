@@ -34,8 +34,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     <?= "<?= " ?>Html::encode($this->title) ?>
                 </h2>
                 <div class="box-tools">
-                    <?= "<?= " ?> Html::create(['create'], [],Yii::t('app','创建')); ?>
-                    <?= "<?= " ?> Html::export(['export']+Yii::$app->request->queryParams, [], Yii::t('app','导出')); ?>
+                    <?= "<?= " ?> Html::create(['create']); ?>
+                    <?= "<?= " ?> Html::export(['export']+Yii::$app->request->queryParams); ?>
                     <?= "<?= " ?> Html::a(Yii::t('app','批量删除'), "javascript:void(0);",
                         [
                             'class' => 'btn btn-danger btn-xs delete-all',
@@ -99,6 +99,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                             'format' => 'Y-m-d',
                             'separator' => '/',
                         ],
+                        'opens'  => 'left',
                     ]
                 ]),
                 'value' => function (\$model) {
@@ -148,6 +149,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                     $itemsCode = "['1' => '选项1', '2' => '选项2']";
                 }
             }
+            // 2. 输出 GridView 列
             echo "            [
                 'attribute' => '".$column->name."',
                 'value' => function (\$model) {
@@ -157,7 +159,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                     
                     if (!is_array(\$ids) || !\$ids) return Yii::t('addon','未知');
 
-                    \$map   = Yii::\$app->services->devPattern->member()::dropDown();
+                    \$map   = $itemsCode;
                     \$names = array_filter(array_map(function (\$id) use (\$map) {
                         return \$map[\$id] ?? '';
                     }, \$ids));
@@ -167,7 +169,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                 'filter' => Html::dropDownList(
                     '".$column->name."',
                     Yii::\$app->request->get('".$column->name."'), 
-                    Yii::\$app->services->devPattern->member()::dropDown(), 
+                    $itemsCode,
                     ['prompt' => Yii::t('addon','全部'), 'class' => 'form-control', 'onchange' => 'this.form.submit()']
                 ),
             ],\n";

@@ -193,7 +193,7 @@ class Generator extends \yiiframe\gii\generators\crud\Generator
                     } else {
                         $mapCode = "{$fullClass}::dropDown()";
                     }
-                }else {
+                } else {
                     /* 3. 无关联表 → 用备注解析 */
                     // 无关联表 → 用备注解析
                     $map = $this->parseCommentToMap($comment);
